@@ -450,17 +450,36 @@ html, body {
   background: color-mix(in srgb, var(--theme-accent-main) 10%, transparent);
 }
 
+.theme-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.theme-browse-link {
+  color: var(--theme-type-subtle-plus);
+  font: 500 12px/1 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.theme-browse-link:hover {
+  color: var(--theme-accent-main);
+  text-decoration: underline;
+}
+
 #btn-import-theme {
-  width: 100%;
   border: none;
   border-radius: 12px;
-  padding: 11px 12px;
+  padding: 11px 16px;
   color: var(--theme-control-text);
   background: var(--theme-accent-main);
   cursor: pointer;
   font: 700 12px/1 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
   letter-spacing: 0.03em;
   transition: transform 0.15s ease, filter 0.15s ease;
+  flex-shrink: 0;
 }
 
 #btn-import-theme:hover {

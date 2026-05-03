@@ -349,14 +349,13 @@ let updateAvailable = null;
 
 async function checkForUpdates() {
   try {
-    const { checkUpdate, installUpdate } = await import('@tauri-apps/plugin-updater');
-    const update = await checkUpdate();
+    const metadata = await invoke('plugin:updater|check');
 
-    if (update?.available) {
-      updateAvailable = update;
+    if (metadata) {
+      updateAvailable = metadata;
       updateBtn.textContent = 'Install Update';
       updateBtn.classList.add('install');
-      updateVersion.textContent = update.version ? `v${update.version}` : 'v0.1.0';
+      updateVersion.textContent = metadata.version ? `v${metadata.version}` : 'v0.1.0';
     } else {
       updateBtn.textContent = 'Up to date';
       updateBtn.disabled = true;
@@ -378,10 +377,9 @@ async function checkForUpdates() {
 updateBtn?.addEventListener('click', async () => {
   if (updateAvailable) {
     try {
-      const { installUpdate } = await import('@tauri-apps/plugin-updater');
       updateBtn.textContent = 'Installing…';
       updateBtn.disabled = true;
-      await installUpdate();
+      await invoke('plugin:updater|download_and_install', { rid: updateAvailable.rid });
     } catch (err) {
       updateBtn.textContent = 'Install failed';
       updateBtn.disabled = false;
