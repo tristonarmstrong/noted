@@ -1,14 +1,14 @@
 {
   "version": "0.1.4",
   "notes": "See the release notes for details.",
-  "pub_date": "2026-05-03T17:05:51Z",
+  "pub_date": "2026-05-03T17:16:02Z",
   "platforms": {
     "linux-x86_64": {
-      "signature": "",
+      "signature": "Signing without password.",
       "url": "https://github.com/khurrambhutto/noted/releases/download/v0.1.4/noted_0.1.4_amd64.deb"
     },
     "windows-x86_64": {
-      "signature": "",
+      "signature": "Signing without password.",
       "url": "https://github.com/khurrambhutto/noted/releases/download/v0.1.4/noted_0.1.4_x64_en-US.msi"
     }
   }
