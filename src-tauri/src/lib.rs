@@ -3,29 +3,28 @@ use tauri::Manager;
 mod db;
 
 #[tauri::command]
-fn save_note(content: String, state: tauri::State<'_, db::Database>) -> Result<(), String> {
-    let conn = state.conn.lock().map_err(|e| e.to_string())?;
-    conn.execute(
-        "UPDATE notes SET content = ?1, updated_at = CURRENT_TIMESTAMP WHERE id = 1",
-        rusqlite::params![content],
-    )
-    .map_err(|e| e.to_string())?;
-    Ok(())
+fn list_notes(state: tauri::State<'_, db::Database>) -> Result<Vec<db::Note>, String> {
+    state.list_notes()
 }
 
 #[tauri::command]
-fn load_note(state: tauri::State<'_, db::Database>) -> Result<String, String> {
-    let conn = state.conn.lock().map_err(|e| e.to_string())?;
-    let result: Result<String, _> = conn.query_row(
-        "SELECT content FROM notes WHERE id = 1",
-        [],
-        |row| row.get(0),
-    );
-    match result {
-        Ok(content) => Ok(content),
-        Err(rusqlite::Error::QueryReturnedNoRows) => Ok(String::new()),
-        Err(e) => Err(e.to_string()),
-    }
+fn get_note(id: i64, state: tauri::State<'_, db::Database>) -> Result<db::Note, String> {
+    state.get_note(id)
+}
+
+#[tauri::command]
+fn create_note(state: tauri::State<'_, db::Database>) -> Result<db::Note, String> {
+    state.create_note()
+}
+
+#[tauri::command]
+fn save_note(id: i64, content: String, state: tauri::State<'_, db::Database>) -> Result<(), String> {
+    state.save_note(id, &content)
+}
+
+#[tauri::command]
+fn delete_note(id: i64, state: tauri::State<'_, db::Database>) -> Result<(), String> {
+    state.delete_note(id)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -38,7 +37,13 @@ pub fn run() {
             app.manage(database);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![save_note, load_note])
+        .invoke_handler(tauri::generate_handler![
+            list_notes,
+            get_note,
+            create_note,
+            save_note,
+            delete_note
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
