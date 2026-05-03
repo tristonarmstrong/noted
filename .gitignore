@@ -30,3 +30,10 @@ Cargo.lock
 
 # Tauri build artifacts
 src-tauri/gen/
+
+# Vendored/reference repos cloned during research
+vendor/
+
+# Local imported Antinote themes / test files
+*.theme.json
+monokai.json

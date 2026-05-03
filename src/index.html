@@ -12,6 +12,9 @@
     <div id="window">
       <div id="titlebar" data-tauri-drag-region>
         <div id="titlebar-grip"></div>
+        <button id="btn-settings" title="Settings" aria-label="Settings">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a8.1 8.1 0 0 0 .05-1l2-1.55-2-3.46-2.42.98a7.8 7.8 0 0 0-1.73-1L15 6.35h-4l-.3 2.62a7.8 7.8 0 0 0-1.73 1L6.55 9l-2 3.46 2 1.55a8.1 8.1 0 0 0 .05 2l-2 1.54 2 3.47 2.4-.98c.54.42 1.12.75 1.74 1l.3 2.61h4l.3-2.62c.62-.24 1.2-.58 1.73-1l2.42.98 2-3.46L19.4 16Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </button>
         <div id="window-controls">
           <button id="btn-minimize" title="Minimize">
             <svg width="10" height="1" viewBox="0 0 10 1"><rect width="10" height="1" rx="0.5" fill="currentColor"/></svg>
@@ -28,6 +31,24 @@
         <textarea id="note-canvas" placeholder="Start typing..." spellcheck="false"></textarea>
       </div>
       <div id="note-indicator"></div>
+      <div id="settings-backdrop" class="hidden"></div>
+      <aside id="settings-panel" class="hidden" aria-hidden="true">
+        <div class="settings-header">
+          <div>
+            <p class="settings-eyebrow">Antinote compatible</p>
+            <h2>Theme Library</h2>
+          </div>
+          <button id="btn-settings-close" title="Close settings" aria-label="Close settings">×</button>
+        </div>
+        <label class="settings-label" for="theme-select">Active theme</label>
+        <select id="theme-select"></select>
+        <div id="theme-preview" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <button id="btn-import-theme">Import Antinote JSON</button>
+        <input id="theme-file-input" type="file" accept=".json,application/json" hidden />
+        <p id="theme-status">Drop in community themes from antinote-extensions or the Antinote Theme Maker.</p>
+      </aside>
     </div>
   </body>
 </html>

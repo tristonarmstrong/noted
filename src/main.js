@@ -1,3 +1,12 @@
+import {
+  applyTheme,
+  getActiveThemeName,
+  loadThemes,
+  saveImportedTheme,
+  setActiveThemeName,
+  validateAntinoteTheme
+} from './themes.js';
+
 const { invoke } = window.__TAURI__.core;
 const { getCurrentWindow } = window.__TAURI__.window;
 const appWindow = getCurrentWindow();
@@ -7,11 +16,91 @@ let notes = [];
 let currentIndex = 0;
 let saveTimeout = null;
 let animating = false;
+let themes = [];
+let activeTheme = null;
 
 // ── DOM ──
 const canvas = document.getElementById('note-canvas');
 const container = document.getElementById('canvas-container');
 const indicator = document.getElementById('note-indicator');
+const settingsButton = document.getElementById('btn-settings');
+const settingsPanel = document.getElementById('settings-panel');
+const settingsBackdrop = document.getElementById('settings-backdrop');
+const settingsCloseButton = document.getElementById('btn-settings-close');
+const themeSelect = document.getElementById('theme-select');
+const importThemeButton = document.getElementById('btn-import-theme');
+const themeFileInput = document.getElementById('theme-file-input');
+const themeStatus = document.getElementById('theme-status');
+
+// ── Theme System (Antinote JSON compatible) ──
+
+async function initThemes() {
+  themes = await loadThemes();
+  const preferredName = getActiveThemeName();
+  activeTheme = themes.find((theme) => theme.name === preferredName) || themes[0];
+  applyTheme(activeTheme);
+  renderThemeSelect();
+}
+
+function renderThemeSelect() {
+  themeSelect.innerHTML = themes
+    .map((theme) => `<option value="${escapeHtml(theme.name)}">${escapeHtml(theme.name)}</option>`)
+    .join('');
+  themeSelect.value = activeTheme.name;
+}
+
+function setThemeByName(name) {
+  const theme = themes.find((item) => item.name === name);
+  if (!theme) return;
+  activeTheme = theme;
+  applyTheme(theme);
+  setActiveThemeName(theme.name);
+  renderThemeSelect();
+  setThemeStatus(`Using ${theme.name}.`);
+}
+
+async function importThemeFile(file) {
+  try {
+    const raw = await file.text();
+    const imported = validateAntinoteTheme(JSON.parse(raw));
+    const existingIndex = themes.findIndex((theme) => theme.name === imported.name);
+
+    if (existingIndex >= 0) {
+      themes[existingIndex] = imported;
+    } else {
+      themes.push(imported);
+    }
+
+    await saveImportedTheme(imported);
+    setThemeByName(imported.name);
+    setThemeStatus(`Imported ${imported.name}. Unsupported Antinote tokens are kept as future stubs.`);
+  } catch (error) {
+    setThemeStatus(error.message || 'Could not import theme.');
+  } finally {
+    themeFileInput.value = '';
+  }
+}
+
+function toggleSettings(forceOpen) {
+  const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : settingsPanel.classList.contains('hidden');
+  settingsPanel.classList.toggle('hidden', !shouldOpen);
+  settingsBackdrop.classList.toggle('hidden', !shouldOpen);
+  settingsPanel.setAttribute('aria-hidden', String(!shouldOpen));
+  settingsButton.classList.toggle('open', shouldOpen);
+}
+
+function setThemeStatus(message) {
+  themeStatus.textContent = message;
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"]/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;'
+  }[char]));
+}
 
 // ── Load & Render ──
 
@@ -47,7 +136,7 @@ function updateIndicator() {
     }
     indicator.innerHTML = html;
   } else {
-    indicator.innerHTML = `<span style="font-size:11px;color:rgba(0,0,0,0.3);font-family:sans-serif;">${currentIndex + 1} / ${notes.length}</span>`;
+    indicator.innerHTML = `<span class="note-count">${currentIndex + 1} / ${notes.length}</span>`;
   }
 }
 
@@ -170,6 +259,10 @@ const SWIPE_THRESHOLD = 80;
 const GESTURE_TIMEOUT = 200;
 
 container.addEventListener('wheel', (e) => {
+  // Let normal two-finger vertical scrolling work inside the textarea.
+  // Only capture horizontal-dominant gestures for note navigation.
+  if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+
   e.preventDefault();
 
   if (gestureLocked || animating) return;
@@ -200,6 +293,8 @@ container.addEventListener('wheel', (e) => {
 // ── Keyboard shortcuts ──
 
 document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') toggleSettings(false);
+
   if ((e.metaKey || e.ctrlKey) && e.shiftKey) {
     if (e.key === ']') { e.preventDefault(); slideToNext(); }
     if (e.key === '[') { e.preventDefault(); slideToPrev(); }
@@ -209,8 +304,22 @@ document.addEventListener('keydown', (e) => {
 // ── Init ──
 
 window.addEventListener('DOMContentLoaded', () => {
+  initThemes();
   loadNotes();
   canvas.addEventListener('input', scheduleSave);
+
+  settingsButton?.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+    toggleSettings();
+  });
+  settingsCloseButton?.addEventListener('click', () => toggleSettings(false));
+  settingsBackdrop?.addEventListener('click', () => toggleSettings(false));
+  themeSelect?.addEventListener('change', (e) => setThemeByName(e.target.value));
+  importThemeButton?.addEventListener('click', () => themeFileInput.click());
+  themeFileInput?.addEventListener('change', (e) => {
+    const [file] = e.target.files || [];
+    if (file) importThemeFile(file);
+  });
 
   document.getElementById('btn-minimize')?.addEventListener('mousedown', (e) => {
     e.stopPropagation();

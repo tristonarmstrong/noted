@@ -1,6 +1,40 @@
+use serde::Serialize;
+use std::fs;
+use std::path::PathBuf;
 use tauri::Manager;
 
 mod db;
+
+#[derive(Clone)]
+struct AppPaths {
+    app_data_dir: PathBuf,
+    themes_dir: PathBuf,
+}
+
+#[derive(Serialize)]
+struct ThemeFile {
+    name: String,
+    json: String,
+}
+
+fn safe_theme_filename(name: &str) -> String {
+    let safe: String = name
+        .chars()
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || c == '-' || c == '_' || c == ' ' {
+                c
+            } else {
+                '-'
+            }
+        })
+        .collect::<String>()
+        .trim()
+        .trim_matches('.')
+        .to_string();
+
+    let safe = if safe.is_empty() { "theme".to_string() } else { safe };
+    format!("{}.json", safe)
+}
 
 #[tauri::command]
 fn list_notes(state: tauri::State<'_, db::Database>) -> Result<Vec<db::Note>, String> {
@@ -27,14 +61,62 @@ fn delete_note(id: i64, state: tauri::State<'_, db::Database>) -> Result<(), Str
     state.delete_note(id)
 }
 
+#[tauri::command]
+fn get_app_data_dir(paths: tauri::State<'_, AppPaths>) -> String {
+    paths.app_data_dir.to_string_lossy().to_string()
+}
+
+#[tauri::command]
+fn list_theme_files(paths: tauri::State<'_, AppPaths>) -> Result<Vec<ThemeFile>, String> {
+    fs::create_dir_all(&paths.themes_dir).map_err(|e| e.to_string())?;
+
+    let mut themes = Vec::new();
+    for entry in fs::read_dir(&paths.themes_dir).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let path = entry.path();
+        if path.extension().and_then(|ext| ext.to_str()) != Some("json") {
+            continue;
+        }
+
+        let json = fs::read_to_string(&path).map_err(|e| e.to_string())?;
+        let name = path
+            .file_stem()
+            .and_then(|stem| stem.to_str())
+            .unwrap_or("theme")
+            .to_string();
+        themes.push(ThemeFile { name, json });
+    }
+
+    Ok(themes)
+}
+
+#[tauri::command]
+fn save_theme_file(name: String, json: String, paths: tauri::State<'_, AppPaths>) -> Result<(), String> {
+    // Validate that the payload is JSON before writing it to disk.
+    serde_json::from_str::<serde_json::Value>(&json).map_err(|e| e.to_string())?;
+    fs::create_dir_all(&paths.themes_dir).map_err(|e| e.to_string())?;
+
+    let path = paths.themes_dir.join(safe_theme_filename(&name));
+    fs::write(path, json).map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
+            // Tauri resolves this to the correct per-user writable location on each OS.
+            // Windows: %APPDATA%\\com.khurram.noted\\
+            // Linux:   ~/.local/share/com.khurram.noted/ or the distro's XDG data dir
             let app_data_dir = app.path().app_data_dir().expect("failed to get app data dir");
-            let database = db::Database::new(app_data_dir).expect("failed to initialize database");
+            fs::create_dir_all(&app_data_dir).expect("failed to create app data dir");
+
+            let themes_dir = app_data_dir.join("themes");
+            fs::create_dir_all(&themes_dir).expect("failed to create themes dir");
+
+            let database = db::Database::new(app_data_dir.clone()).expect("failed to initialize database");
             app.manage(database);
+            app.manage(AppPaths { app_data_dir, themes_dir });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -42,7 +124,10 @@ pub fn run() {
             get_note,
             create_note,
             save_note,
-            delete_note
+            delete_note,
+            get_app_data_dir,
+            list_theme_files,
+            save_theme_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
