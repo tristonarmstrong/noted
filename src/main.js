@@ -81,10 +81,20 @@ async function initThemes() {
 function renderThemeSelect() {
   dropdownLabel.textContent = activeTheme.name;
   dropdownPanel.innerHTML = themes
-    .map((theme) => `
-      <button class="theme-dropdown-option" role="option" aria-selected="${theme.name === activeTheme.name}" data-value="${escapeHtml(theme.name)}">
-        ${escapeHtml(theme.name)}
-      </button>`)
+    .map((theme) => {
+      const selected = theme.name === activeTheme.name;
+      const checkSvg = `<svg class="theme-option-check-icon" width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      const swatches = `<span class="theme-option-swatches" aria-hidden="true">
+        <span class="theme-swatch" style="--swatch-color: ${escapeHtml(theme.background)}"></span>
+        <span class="theme-swatch" style="--swatch-color: ${escapeHtml(theme.typeMain)}"></span>
+        <span class="theme-swatch theme-swatch-accent" style="--swatch-color: ${escapeHtml(theme.accent1Main)}"></span>
+      </span>`;
+      return `<button class="theme-dropdown-option" role="option" aria-selected="${selected}" data-value="${escapeHtml(theme.name)}">
+        <span class="theme-option-check">${selected ? checkSvg : ''}</span>
+        ${swatches}
+        <span class="theme-option-label">${escapeHtml(theme.name)}</span>
+      </button>`;
+    })
     .join('');
   dropdownPanel.querySelectorAll('.theme-dropdown-option').forEach((btn) => {
     btn.addEventListener('click', () => {

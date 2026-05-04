@@ -357,7 +357,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
+  padding: 5px 10px 5px 12px;
   border: 1px solid color-mix(in srgb, var(--theme-type-main) 14%, transparent);
   border-radius: 8px;
   background: color-mix(in srgb, var(--theme-background) 88%, var(--theme-type-reverse) 12%);
@@ -366,27 +366,32 @@ html, body {
   cursor: pointer;
   outline: none;
   white-space: nowrap;
-  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--theme-type-reverse) 18%, transparent);
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   -webkit-app-region: no-drag;
 }
 
 .theme-dropdown-trigger:hover {
   border-color: color-mix(in srgb, var(--theme-type-main) 26%, transparent);
+  background: color-mix(in srgb, var(--theme-background) 80%, var(--theme-type-reverse) 20%);
 }
 
 .theme-dropdown-trigger:focus-visible {
   border-color: var(--theme-accent-main);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--theme-accent-main) 30%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--theme-type-reverse) 18%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--theme-accent-main) 30%, transparent);
 }
 
 .theme-dropdown-trigger[aria-expanded="true"] {
   border-color: var(--theme-accent-main);
+  background: color-mix(in srgb, var(--theme-accent-main) 8%, var(--theme-background));
 }
 
 .theme-dropdown-chevron {
   flex-shrink: 0;
   color: var(--theme-type-subtle-plus);
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .theme-dropdown-trigger[aria-expanded="true"] .theme-dropdown-chevron {
@@ -395,25 +400,49 @@ html, body {
 
 .theme-dropdown-panel {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 6px);
   right: 0;
-  min-width: 140px;
-  background: var(--theme-background);
-  border: 1px solid color-mix(in srgb, var(--theme-type-main) 14%, transparent);
-  border-radius: 10px;
+  min-width: 180px;
+  max-height: 300px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--theme-type-main) 14%, transparent) transparent;
+  background: color-mix(in srgb, var(--theme-background) 88%, var(--theme-type-reverse) 12%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid color-mix(in srgb, var(--theme-type-main) 12%, transparent);
+  border-radius: 12px;
   box-shadow:
-    0 6px 20px rgba(0, 0, 0, 0.08),
-    0 2px 6px rgba(0, 0, 0, 0.04);
-  padding: 4px;
+    0 8px 32px rgba(0, 0, 0, 0.10),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 6px;
   z-index: 50;
-  animation: dropdown-in 0.15s ease-out;
+  animation: dropdown-in 0.2s cubic-bezier(0.22, 1, 0.36, 1);
   transform-origin: top right;
+}
+
+.theme-dropdown-panel::-webkit-scrollbar {
+  width: 5px;
+}
+
+.theme-dropdown-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.theme-dropdown-panel::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--theme-type-main) 12%, transparent);
+  border-radius: 999px;
+}
+
+.theme-dropdown-panel::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--theme-type-main) 22%, transparent);
 }
 
 @keyframes dropdown-in {
   from {
     opacity: 0;
-    transform: translateY(-4px) scale(0.96);
+    transform: translateY(-6px) scale(0.95);
   }
   to {
     opacity: 1;
@@ -422,32 +451,99 @@ html, body {
 }
 
 .theme-dropdown-option {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
-  padding: 7px 10px;
+  padding: 7px 10px 7px 8px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   background: transparent;
   color: var(--theme-type-main);
   font: 500 12px/1.2 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
   text-align: left;
   cursor: pointer;
   outline: none;
-  transition: background 0.12s ease, color 0.12s ease;
+  transition: background 0.12s ease, transform 0.12s ease;
 }
 
 .theme-dropdown-option:hover {
-  background: color-mix(in srgb, var(--theme-type-main) 7%, transparent);
+  background: color-mix(in srgb, var(--theme-type-main) 6%, transparent);
+  transform: translateX(2px);
 }
 
 .theme-dropdown-option:focus-visible {
-  background: color-mix(in srgb, var(--theme-type-main) 7%, transparent);
+  background: color-mix(in srgb, var(--theme-type-main) 6%, transparent);
 }
 
 .theme-dropdown-option[aria-selected="true"] {
-  color: var(--theme-accent-main);
   font-weight: 600;
-  background: color-mix(in srgb, var(--theme-accent-main) 10%, transparent);
+}
+
+/* ── Checkmark ── */
+
+.theme-option-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.theme-option-check-icon {
+  color: var(--theme-accent-main);
+  animation: check-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes check-pop {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Color Swatches ── */
+
+.theme-option-swatches {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.theme-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--swatch-color);
+  box-shadow: inset 0 0 0 0.5px color-mix(in srgb, var(--theme-type-main) 10%, transparent);
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.theme-dropdown-option:hover .theme-swatch {
+  transform: scale(1.15);
+}
+
+.theme-swatch-accent {
+  position: relative;
+}
+
+.theme-swatch-accent::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--swatch-color) 25%, transparent);
+}
+
+/* ── Label ── */
+
+.theme-option-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .theme-actions {
