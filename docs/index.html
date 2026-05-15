@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>noted — Minimal Distraction-Free Note Taking App</title>
+  <meta name="description" content="A free, open-source scratchpad for temporary notes. Swipe navigation, custom themes, zero bloat. Linux & Windows.">
+  <meta name="author" content="Khurram Bhutto">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <link rel="canonical" href="https://khurrambhutto.github.io/noted/">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <link rel="icon" type="image/png" sizes="128x128" href="favicon-128.png">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://khurrambhutto.github.io/noted/">
+  <meta property="og:title" content="noted — Minimal Distraction-Free Note Taking App">
+  <meta property="og:description" content="A free, open-source scratchpad for temporary notes. Swipe navigation, custom themes, zero bloat.">
+  <meta property="og:image" content="https://khurrambhutto.github.io/noted/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="noted app screenshot showing the minimal note editor interface">
+  <meta property="og:site_name" content="noted">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://khurrambhutto.github.io/noted/">
+  <meta name="twitter:title" content="noted — Minimal Distraction-Free Note Taking App">
+  <meta name="twitter:description" content="A free, open-source scratchpad for temporary notes. Swipe navigation, custom themes.">
+  <meta name="twitter:image" content="https://khurrambhutto.github.io/noted/og-image.png">
+  <meta name="twitter:image:alt" content="noted app screenshot showing the minimal note editor interface">
+
+  <!-- Schema.org: SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "noted",
+    "description": "A minimal, distraction-free note-taking app. A free open-source alternative to Antinote with swipe navigation, custom themes, and zero bloat.",
+    "url": "https://khurrambhutto.github.io/noted/",
+    "image": "https://khurrambhutto.github.io/noted/og-image.png",
+    "applicationCategory": "ProductivityApplication",
+    "operatingSystem": ["Linux", "Windows"],
+    "softwareVersion": "0.1.7",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Khurram Bhutto",
+      "url": "https://khurrambhutto.tech/",
+      "sameAs": [
+        "https://github.com/khurrambhutto",
+        "https://www.linkedin.com/in/khurram-bhutto/"
+      ]
+    },
+    "codeRepository": "https://github.com/khurrambhutto/noted",
+    "downloadUrl": "https://github.com/khurrambhutto/noted/releases",
+    "featureList": [
+      "Swipe navigation between notes",
+      "Custom JSON themes",
+      "Auto-delete empty notes",
+      "Global keyboard shortcut",
+      "Undo/redo support",
+      "Local SQLite storage",
+      "Lightweight single-window design"
+    ],
+    "screenshot": [
+      "https://khurrambhutto.github.io/noted/noted-light-theme.png",
+      "https://khurrambhutto.github.io/noted/noted-dark-theme.png",
+      "https://khurrambhutto.github.io/noted/noted-themes.png"
+    ]
+  }
+  </script>
+
+  <!-- Schema.org: Organization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "noted",
+    "url": "https://khurrambhutto.github.io/noted/",
+    "logo": "https://khurrambhutto.github.io/noted/favicon-128.png",
+    "sameAs": [
+      "https://github.com/khurrambhutto/noted"
+    ],
+    "founder": {
+      "@type": "Person",
+      "name": "Khurram Bhutto",
+      "url": "https://github.com/khurrambhutto"
+    }
+  }
+  </script>
+
+  <!-- Schema.org: Person (Developer) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Khurram Bhutto",
+    "url": "https://khurrambhutto.tech/",
+    "image": "https://khurrambhutto.github.io/noted/og-image.png",
+    "sameAs": [
+      "https://github.com/khurrambhutto",
+      "https://www.linkedin.com/in/khurram-bhutto/",
+      "https://khurrambhutto.tech/"
+    ],
+    "jobTitle": "Software Developer",
+    "knowsAbout": ["Software Development", "Tauri", "Rust", "JavaScript", "Open Source"]
+  }
+  </script>
+
+  <!-- Schema.org: FAQPage (hidden, for rich snippets) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is noted a free alternative to Antinote?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. noted is completely free and open source, inspired by Antinote's design philosophy of minimal, temporary notes with swipe navigation."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does noted work on Linux?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. noted is built with Tauri and supports Linux (.deb, .rpm, AppImage) and Windows (.msi)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Where are my notes stored?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "All notes are stored locally in a SQLite database on your device. No cloud, no syncing, no data collection."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Mono', 'SF Mono', 'Menlo', 'Consolas', monospace;
+      background: #fafaf8;
+      color: #111;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .nav-logo {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .nav-github {
+      font-size: 13px;
+      color: #6b7b8d;
+      transition: color 0.2s ease;
+    }
+
+    .nav-github:hover { color: #111; }
+
+    .hero {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 120px 40px 80px;
+    }
+
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 28px;
+    }
+
+    .hero p {
+      font-size: 15px;
+      color: #6b7b8d;
+      max-width: 400px;
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 18px;
+      background: #111;
+      color: #fafaf8;
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      transition: opacity 0.2s ease;
+    }
+
+    .btn-download:hover { opacity: 0.85; }
+
+    .btn-source {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 18px;
+      background: transparent;
+      color: #111;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 400;
+      transition: border-color 0.2s ease;
+    }
+
+    .btn-source:hover { border-color: #999; }
+
+    .divider {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    .divider hr {
+      border: none;
+      border-top: 1px solid #e8e6e1;
+    }
+
+    .features {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 64px 40px 100px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px;
+    }
+
+    .feature h3 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .feature p {
+      font-size: 13px;
+      color: #6b7b8d;
+      line-height: 1.7;
+    }
+
+    .screenshots {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 40px 80px;
+    }
+
+    .screenshots-inner {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .screenshots-inner img {
+      width: 200px;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    footer {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 40px 60px;
+    }
+
+    footer p {
+      font-size: 12px;
+      color: #6b7b8d;
+    }
+
+    footer a {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.2s ease;
+    }
+
+    footer a:hover { color: #111; }
+
+    @media (max-width: 600px) {
+      nav { padding: 16px 24px; }
+      .hero { padding: 80px 24px 60px; }
+      .divider { padding: 0 24px; }
+      .features { padding: 48px 24px 80px; grid-template-columns: 1fr; gap: 36px; }
+      .screenshots { padding: 40px 24px 60px; }
+      .screenshots-inner { gap: 12px; }
+      .screenshots-inner img { width: 160px; }
+      footer { padding: 0 24px 48px; }
+    }
+  </style>
+</head>
+
+<body>
+  <nav>
+    <a href="#" class="nav-logo">noted.</a>
+    <a href="https://github.com/khurrambhutto/noted" class="nav-github">GitHub →</a>
+  </nav>
+
+  <header class="hero">
+    <h1>A minimal,<br>distraction-free<br>note-taking app.</h1>
+    <p>A minimal scratchpad for temporary thoughts. Swipe through notes, switch themes, zero distractions.</p>
+    <div class="hero-actions">
+      <a href="https://github.com/khurrambhutto/noted/releases" class="btn-download">Download</a>
+      <a href="https://github.com/khurrambhutto/noted" class="btn-source">View source</a>
+    </div>
+  </header>
+
+  <div class="divider"><hr></div>
+
+  <section class="features">
+    <div class="feature">
+      <h3>Native</h3>
+      <p>Built with Tauri. Tiny binary, instant launch.</p>
+    </div>
+    <div class="feature">
+      <h3>Themeable</h3>
+      <p>Antinote-compatible JSON themes.</p>
+    </div>
+    <div class="feature">
+      <h3>Cross-platform</h3>
+      <p>Linux and Windows.</p>
+    </div>
+  </section>
+
+  <div class="divider"><hr></div>
+
+  <section class="screenshots">
+    <div class="screenshots-inner">
+      <img src="noted-light-theme.png" alt="noted app showing light theme with minimal note editor" width="428" height="501" loading="lazy">
+      <img src="noted-dark-theme.png" alt="noted app showing dark theme with settings panel" width="428" height="501" loading="lazy">
+      <img src="noted-themes.png" alt="noted app showing theme selection dropdown with color swatches" width="428" height="501" loading="lazy">
+    </div>
+  </section>
+
+  <footer>
+    <p>Open source · Built by <a href="https://khurrambhutto.tech/">Khurram Bhutto</a></p>
+  </footer>
+</body>
+</html>
