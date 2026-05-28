@@ -1,6 +1,7 @@
 import {
   applyTheme,
   getActiveThemeName,
+  getThemeLoadWarnings,
   loadThemes,
   saveImportedTheme,
   setActiveThemeName,
@@ -121,6 +122,11 @@ async function initThemes() {
   activeTheme = themes.find((theme) => theme.name === preferredName) || themes[0];
   applyTheme(activeTheme);
   renderThemeSelect();
+
+  const warnings = getThemeLoadWarnings();
+  if (warnings.length > 0) {
+    showStatus(warnings.length === 1 ? warnings[0] : `Skipped ${warnings.length} invalid themes`);
+  }
 }
 
 function renderThemeSelect() {

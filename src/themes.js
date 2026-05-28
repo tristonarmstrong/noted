@@ -2,6 +2,8 @@ const { invoke } = window.__TAURI__.core;
 
 const THEME_STORAGE_KEY = 'noted.themes';
 const ACTIVE_THEME_KEY = 'noted.activeTheme';
+const DEFAULT_THEME_NAME = 'Noted Paper';
+let themeLoadWarnings = [];
 
 export const ANTINOTE_THEME_KEYS = [
   'name', 'isDarkTheme',
@@ -142,9 +144,14 @@ export function validateAntinoteTheme(value) {
 }
 
 export async function loadThemes() {
+  themeLoadWarnings = [];
   const fileThemes = await loadThemesFromDisk();
   const legacyThemes = loadLegacyLocalStorageThemes();
   return mergeThemes(DEFAULT_THEMES, legacyThemes, fileThemes);
+}
+
+export function getThemeLoadWarnings() {
+  return [...themeLoadWarnings];
 }
 
 export async function saveImportedTheme(theme) {
@@ -158,7 +165,17 @@ export async function saveImportedTheme(theme) {
 async function loadThemesFromDisk() {
   try {
     const files = await invoke('list_theme_files');
-    return files.map((file) => validateAntinoteTheme(JSON.parse(file.json)));
+    const loaded = [];
+    files.forEach((file) => {
+      try {
+        loaded.push(validateAntinoteTheme(JSON.parse(file.json)));
+      } catch (error) {
+        const name = file.name || 'unknown theme';
+        themeLoadWarnings.push(`Skipped invalid theme "${name}"`);
+        console.warn(`Could not load theme "${name}":`, error);
+      }
+    });
+    return loaded;
   } catch (error) {
     console.warn('Could not load themes from disk:', error);
     return [];
@@ -176,7 +193,7 @@ function loadLegacyLocalStorageThemes() {
 }
 
 export function getActiveThemeName() {
-  return localStorage.getItem(ACTIVE_THEME_KEY) || DEFAULT_THEMES[0].name;
+  return localStorage.getItem(ACTIVE_THEME_KEY) || DEFAULT_THEME_NAME;
 }
 
 export function setActiveThemeName(name) {
@@ -233,7 +250,7 @@ function mapThemeToCss(theme) {
     '--theme-accent-secondary': theme.accent1Secondary,
     '--theme-accent-tertiary': theme.accent1Tertiary,
     '--theme-danger': theme.accent5Main,
-    '--theme-control-text': theme.isDarkTheme ? theme.typeMain : theme.typeReverse,
+    '--theme-control-text': readableTextColor(theme.accent1Main, theme),
     '--theme-grid-superlight': theme.gridSuperlight,
     '--theme-grid-clear': theme.gridClear,
     '--theme-grid-bold': theme.gridBold,
@@ -248,4 +265,56 @@ function mapThemeToCss(theme) {
     '--theme-accent-5-main': theme.accent5Main,
     '--theme-accent-5-secondary': theme.accent5Secondary
   };
+}
+
+function readableTextColor(backgroundColor, theme) {
+  const background = colorOnOpaqueBackground(backgroundColor, theme.background);
+  const candidates = [theme.typeReverse, theme.typeMain, '#ffffff', '#000000'];
+
+  return candidates
+    .map((color) => ({
+      color,
+      contrast: contrastRatio(colorOnOpaqueBackground(color, theme.background), background)
+    }))
+    .sort((a, b) => b.contrast - a.contrast)[0].color;
+}
+
+function colorOnOpaqueBackground(color, fallbackBackground) {
+  const foreground = hexToRgba(color);
+  if (foreground.a >= 1) return foreground;
+
+  const background = hexToRgba(fallbackBackground);
+  return {
+    r: Math.round((foreground.r * foreground.a) + (background.r * (1 - foreground.a))),
+    g: Math.round((foreground.g * foreground.a) + (background.g * (1 - foreground.a))),
+    b: Math.round((foreground.b * foreground.a) + (background.b * (1 - foreground.a))),
+    a: 1
+  };
+}
+
+function hexToRgba(color) {
+  const value = color.replace('#', '');
+  const alpha = value.length === 8 ? parseInt(value.slice(6, 8), 16) / 255 : 1;
+
+  return {
+    r: parseInt(value.slice(0, 2), 16),
+    g: parseInt(value.slice(2, 4), 16),
+    b: parseInt(value.slice(4, 6), 16),
+    a: alpha
+  };
+}
+
+function contrastRatio(a, b) {
+  const lighter = Math.max(relativeLuminance(a), relativeLuminance(b));
+  const darker = Math.min(relativeLuminance(a), relativeLuminance(b));
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function relativeLuminance({ r, g, b }) {
+  const [red, green, blue] = [r, g, b].map((channel) => {
+    const value = channel / 255;
+    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  });
+
+  return 0.2126 * red + 0.7152 * green + 0.0722 * blue;
 }
