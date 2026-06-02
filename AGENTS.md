@@ -70,6 +70,8 @@ When validating changes, choose the smallest meaningful set:
 - Treat `src/editor-controller.js` as the app-facing editor adapter. Other modules should use its methods instead of reaching into CodeMirror internals.
 - Keep editor-only behavior inside `src/editor-features/` when possible.
 - Preserve the plain-text storage model. Do not store rich text, HTML, or rendered editor decorations as note content.
+- `src/editor-features/mode-detector.js` writes the active mode to CodeMirror's inner `.cm-editor` element with `data-editor-mode`, not to the outer `#note-editor` mount. CSS for mode-specific editor layout should target selectors like `#note-editor .cm-editor[data-editor-mode="list"] ...`.
+- Checklist/list rendering is editor-only: `src/editor-features/checklist.js` adds checkbox widgets and marks the rendered `list` keyword, while `src/styles.css` controls their visual spacing. For vertical spacing between checklist rows, prefer list-mode line layout rules in `src/styles.css` rather than changing the global `--editor-line-height`.
 - `src/notes-controller.js` serializes saves with `pendingSave`; do not bypass this queue when adding note operations.
 - `src-tauri/src/db.rs` owns persistence invariants: at least one note exists, positions remain contiguous, and old schemas migrate forward.
 - `src-tauri/src/lib.rs` owns Tauri command registration, plugin setup, app data paths, DBus/single-instance behavior, and theme file commands.
