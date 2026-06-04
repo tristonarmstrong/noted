@@ -3,7 +3,7 @@ import { Decoration, ViewPlugin, WidgetType } from '@codemirror/view';
 import { activeEditorModeField } from './mode-detector.js';
 
 const CHECK_TRIGGER_REGEX = /\s*\/x\s*$/i;
-const HEADING_REGEX = /^#{1,3}(?:\s|$)/;
+const HEADING_REGEX = /^#+(?:\s|$)/;
 
 function isChecklistLine(text) {
   const trimmed = text.trim();
@@ -55,6 +55,8 @@ class ChecklistBoxWidget extends WidgetType {
 }
 
 function toggleChecklistLine(view, lineFrom) {
+  if (view.state.readOnly) return;
+
   const line = view.state.doc.lineAt(lineFrom);
   const match = line.text.match(CHECK_TRIGGER_REGEX);
 
@@ -123,7 +125,7 @@ export const checklistField = ViewPlugin.fromClass(class {
   }
 
   update(update) {
-    if (update.docChanged || update.selectionSet || update.viewportChanged) {
+    if (update.docChanged || update.viewportChanged) {
       this.decorations = buildChecklistDecorations(update.view);
     }
   }

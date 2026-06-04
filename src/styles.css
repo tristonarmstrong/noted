@@ -538,6 +538,14 @@ body {
     text-decoration-skip-ink: auto;
 }
 
+#note-editor .cm-line:has(.checklist-line-checked) .shrunk-link {
+    color: inherit;
+    text-decoration-line: line-through underline;
+    text-decoration-color: var(--text-muted);
+    text-decoration-style: solid;
+    text-decoration-thickness: 1px;
+}
+
 #note-editor .cm-cursor {
     border-left-color: var(--accent-primary);
 }
